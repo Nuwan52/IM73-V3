@@ -13,7 +13,12 @@ char packetBuffer[100];
 char ReplyBuffer[] = "this is controller";
 EthernetUDP Udp;
 
+extern bool startFlag;
+extern int Lid_timer;
+extern int Tub_timer;
 int ConveryorSpeed(int flag);
+void Manual_Overide(int data , bool status);
+void TubLidExchnage(int data);
 
 
 void AnalizeEthernetData(String data) {
@@ -22,24 +27,26 @@ void AnalizeEthernetData(String data) {
   if (data.equals("SO1_ON")) {
 
     Serial.println("turing on solonoid 01");
-    
+    Manual_Overide(CUP_UPWORD , true);
     
   }
   if (data.equals("SO1_OFF")) {
 
     Serial.println("turing OFF solonoid 01");
-    
+    Manual_Overide(CUP_UPWORD , false);
   }
 
 
   if (data.equals("SO2_ON")) {
 
     Serial.println("turing on solonoid 02");
+    Manual_Overide(CUP_PUSHER , true);
     
   }
   if (data.equals("SO2_OFF")) {
 
     Serial.println("turing OFF solonoid 02");
+    Manual_Overide(CUP_PUSHER , false);
     
   }
 
@@ -47,11 +54,13 @@ void AnalizeEthernetData(String data) {
   if (data.equals("SO3_ON")) {
 
     Serial.println("turing on solonoid 03");
+    Manual_Overide(CUP_LIFTER , true);
     
   }
   if (data.equals("SO3_OFF")) {
 
     Serial.println("turing OFF solonoid 03");
+    Manual_Overide(CUP_LIFTER , false);
     
   }
 
@@ -59,11 +68,13 @@ void AnalizeEthernetData(String data) {
   if (data.equals("SO4_ON")) {
 
     Serial.println("turing on solonoid 04");
+    Manual_Overide(CUP_GRABBER , true);
     
   }
   if (data.equals("SO4_OFF")) {
 
     Serial.println("turing OFF solonoid 04");
+    Manual_Overide(CUP_GRABBER , false);
     
   }
 
@@ -72,11 +83,13 @@ void AnalizeEthernetData(String data) {
   if (data.equals("SO5_ON")) {
 
     Serial.println("turing on solonoid 05");
+    Manual_Overide(CUP_PUSHER_TO_CONVEYOR , true);
     
   }
   if (data.equals("SO5_OFF")) {
 
     Serial.println("turing OFF solonoid 05");
+    Manual_Overide(CUP_PUSHER_TO_CONVEYOR , false);
     
   }
 
@@ -84,22 +97,26 @@ void AnalizeEthernetData(String data) {
   if (data.equals("SO6_ON")) {
 
     Serial.println("turing on solonoid 06");
+    Manual_Overide(CUP_DROO , true);
     
   }
   if (data.equals("SO6_OFF")) {
 
     Serial.println("turing OFF solonoid 06");
+    Manual_Overide(CUP_DROO , false);
     
   }
 
   if (data.equals("SO7_ON")) {
 
     Serial.println("turing on solonoid 07");
+    Manual_Overide(CUP_PUSHER_TO_CONVEYOR_02 , true);
     
   }
   if (data.equals("SO7_OFF")) {
 
     Serial.println("turing OFF solonoid 07");
+    Manual_Overide(CUP_PUSHER_TO_CONVEYOR_02 , false);
     
   }
 
@@ -135,20 +152,29 @@ void AnalizeEthernetData(String data) {
   if (data.equals("TUB")) {
 
     Serial.println("runing tub");
-
+    TubLidExchnage(Tub_timer);
+    Manual_Overide(PROCESS_SELECTOR , true);
+    Manual_Overide(CONVERYOR_LIFTER , false);
   }
   if (data.equals("LID")) {
 
     Serial.println("runing lid");
+    TubLidExchnage(Lid_timer);
+    Manual_Overide(PROCESS_SELECTOR , false);
+    Manual_Overide(CONVERYOR_LIFTER , true);
 
   }
   if (data.equals("START")) {
 
     Serial.println("starting the machine");
+    startFlag = true;
+    
   
   }
   if (data.equals("STOP")) {
     String data = "STOP";
+    startFlag = false;
+    
   }
 }
 

@@ -5,20 +5,34 @@
 #include "maintread.h"
 #include "hmi.h"
 
+//change this to adjest the timing of tub and lid 
+int Tub_timer  = 60;
+int Lid_timer  = 150;
+// end 
+
 
 
 int delay_[] = {300, 300, 1000, 1000, 1000, 1000};
-int delay1_[] = {0, 100, 200};
-int delay2_[] = {1000, 1000, 1000, 1000, 1000, 1000, 1000};
+int delay1_[] = {0, 60, 60};
+int delay3_[] = {100, 100, 100};
+int delay2_[] = {1000, 100, 1000, 1000, 1000, 1000, 1000};
 
 maintread time = maintread(delay_, 6);
 maintread time1 = maintread(delay1_, 3);
+maintread time3 = maintread(delay3_, 3);
 maintread time2 = maintread(delay2_, 7);
 
 
 int current_cupCounnt = 0;
 int Activate_Ejection = false;
 int CONVE_RUN_SPEED = 10000;
+bool startFlag = false;
+
+
+void TubLidExchnage(int data){
+    delay1_[1] = data;
+    delay1_[2] = data;
+}
 
 
 void Converyor_Move()
@@ -29,17 +43,49 @@ void Converyor_Move()
     // Sets all motor connectors into step and direction mode.
     MotorMgr.MotorModeSet(MotorManager::MOTOR_ALL,
                           Connector::CPM_MODE_STEP_AND_DIR);
-    Converyor.AccelMax(12000);
+    Converyor.AccelMax(1200);
     Converyor.EnableRequest(true);
-    Converyor.MoveVelocity(15000);
+    Converyor.MoveVelocity(10000);
 
                           
+}
+
+void converyor_speed_adjust()
+{
+    
+   
+    if (time3.Delay() == 1)
+    {
+        //   do something 1
+        Converyor.MoveVelocity(20000);
+       
+        time3.finish();
+     
+    }
+
+    if (time3.Delay() == 2)
+    {
+        //   do something 1
+       Converyor.MoveStopDecel(1500000000);
+       
+        
+       
+        time3.finish();
+    }
+
+    if (time3.Delay() == 3)
+    {
+        //   do something 1
+        
+        
+        time3.finish();
+    }
 }
 
 void stacking_step_01()
 {
 
-    if (time1.Delay() == 1)
+    if (time1.Delay() == 1 && startFlag)
     {
         //   do something 1
 
@@ -53,7 +99,7 @@ void stacking_step_01()
     {
         //   do something 1
         
-        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CLEARCORE_PIN_CCIOB6))->State(true);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_UPWORD))->State(true);
         current_cupCounnt++;
         if(current_cupCounnt == MAX_CUP_COUNT){
             Activate_Ejection = true;  
@@ -66,7 +112,7 @@ void stacking_step_01()
     {
         //   do something 1
         
-        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CLEARCORE_PIN_CCIOB6))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_UPWORD))->State(false);
         time1.finish();
     }
 }
@@ -79,7 +125,7 @@ void stacking_stap_02()
         //   do something 1
         
         if(Activate_Ejection){  
-            CcioMgr.PinByIndex(static_cast<ClearCorePins>(CLEARCORE_PIN_CCIOA5))->State(true);
+            CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_GRABBER))->State(true);
             Activate_Ejection = false;
             time.finish();
         }
@@ -89,21 +135,21 @@ void stacking_stap_02()
     {
         //   do something 1
         
-        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CLEARCORE_PIN_CCIOA4))->State(true);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_LIFTER))->State(true);
         time.finish();
     }
 
     if (time.Delay() == 3)
     {
         //   do something 1
-        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CLEARCORE_PIN_CCIOB7))->State(true);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_DROO))->State(true);
         time.finish();
     }
 
     if (time.Delay() == 4)
     {
         //   do something 1
-        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CLEARCORE_PIN_CCIOB4))->State(true);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_PUSHER))->State(true);
         time.finish();
     }
 
@@ -111,10 +157,10 @@ void stacking_stap_02()
     {
         //   do something 1
         
-        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CLEARCORE_PIN_CCIOB4))->State(false);
-        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CLEARCORE_PIN_CCIOA4))->State(false);
-        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CLEARCORE_PIN_CCIOA5))->State(false);
-       
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_PUSHER))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_LIFTER))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_GRABBER))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_PUSHER_TO_CONVEYOR))->State(true);
 
         
         time.finish();
@@ -124,7 +170,8 @@ void stacking_stap_02()
     {
         //   do something 1
 
-        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CLEARCORE_PIN_CCIOB7))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_DROO))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_PUSHER_TO_CONVEYOR))->State(false);
         time.finish();
     }
 
@@ -136,12 +183,11 @@ void IML_interface(){
 
 
 
-    if (time2.Delay() == 1)
+    if (time2.Delay() == 1 && IM_SENSOR.State())
     {
         //   do something 1
-        SerialPort.SendLine("Thread 03d 01");
-        SUCTION_LEFT.State(true);
-        SUCTION_RIGHT.State(true);  
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(SUCTIONLEFT))->State(true);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(SUCTIONRIGHT))->State(true);
 
 
         time2.finish();
@@ -150,10 +196,9 @@ void IML_interface(){
     if (time2.Delay() == 2)
     {
         //   do something 1
-        SerialPort.SendLine("Thread 03d 02");
-        CUP_ROTATOR_RIGHT.State(true);
-        BOTTOM_LIFT.State(true);
-        SUCTION_BOTTOM.State(true);     
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(ROTATERIGHT))->State(true);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(BOTTOMLIFT))->State(true);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(SUCTIONBOTTOM))->State(true);  
         time2.finish();
     }
 
@@ -161,9 +206,10 @@ void IML_interface(){
     {
         //   do something 1
         SerialPort.SendLine("Thread 03d 03");
-        SUCTION_RIGHT.State(false);
-        CUP_ROTATOR_RIGHT.State(false);
-        BOTTOM_LIFT.State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(SUCTIONRIGHT))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(ROTATERIGHT))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(BOTTOMLIFT))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(SUCTIONBOTTOM))->State(false);
 
         time2.finish();
     }
@@ -171,8 +217,8 @@ void IML_interface(){
     if (time2.Delay() == 4)
     {
         //   do something 1
-        SerialPort.SendLine("Thread 03d 04");
-        SUCTION_BOTTOM.State(false);
+        
+
 
 
         time2.finish();
@@ -180,11 +226,10 @@ void IML_interface(){
 
     if (time2.Delay() == 5)
     {
-        //   do something 1
-        SerialPort.SendLine("Thread 03d 05");
-        CUP_ROTATOR_LEFT.State(true);
-        BOTTOM_LIFT.State(true);
-        SUCTION_BOTTOM.State(true); 
+
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(ROTATELEFT))->State(true);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(BOTTOMLIFT))->State(true);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(SUCTIONBOTTOM))->State(true);
 
 
         time2.finish();
@@ -192,20 +237,20 @@ void IML_interface(){
 
     if (time2.Delay() == 6)
     {
-        //   do something 1
-        SerialPort.SendLine("Thread 03d 06");
-        SUCTION_LEFT.State(false);
-        CUP_ROTATOR_LEFT.State(false);  
-        BOTTOM_LIFT.State(false);   
+        
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(SUCTIONLEFT))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(ROTATELEFT))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(BOTTOMLIFT))->State(false);
+        CcioMgr.PinByIndex(static_cast<ClearCorePins>(SUCTIONBOTTOM))->State(false);
 
         time2.finish();
     }
 
      if (time2.Delay() == 7)
     {
-        //   do something 1
-        SerialPort.SendLine("Thread 03d 07");
-        SUCTION_BOTTOM.State(false);
+      
+       
+
         time2.finish();
     }
 
@@ -216,10 +261,8 @@ void IML_interface(){
 }
 
 
-void Manual_Overide(String Data){
-CcioMgr.PinByIndex(static_cast<ClearCorePins>(CLEARCORE_PIN_CCIOA0))->State(true);
-
-
+void Manual_Overide(int Data , bool status){
+CcioMgr.PinByIndex(static_cast<ClearCorePins>(Data))->State(status);
 }
 
 int ConveryorSpeed(int flag){
@@ -229,7 +272,7 @@ CONVE_RUN_SPEED+=CONVE_INCREMENT;
 }else if(CONVE_RUN_SPEED > CONVE_MIN_SPEED){
 CONVE_RUN_SPEED-=CONVE_INCREMENT;
 }
-
+Converyor.MoveVelocity(CONVE_RUN_SPEED);
 return CONVE_RUN_SPEED;
 
 }
@@ -238,14 +281,8 @@ void initIO()
 {
 
     SENSOR_PIN.Mode(Connector::INPUT_DIGITAL);
-    Y_AIXS_LIMIT.Mode(Connector::INPUT_DIGITAL);
-    SUCTION_RIGHT.Mode(Connector::OUTPUT_DIGITAL);
-    SUCTION_LEFT.Mode(Connector::OUTPUT_DIGITAL);
-    SUCTION_BOTTOM.Mode(Connector::OUTPUT_DIGITAL);
-    CUP_ROTATOR_LEFT.Mode(Connector::OUTPUT_DIGITAL);
-    CUP_ROTATOR_RIGHT.Mode(Connector::OUTPUT_DIGITAL);
-    BOTTOM_LIFT.Mode(Connector::OUTPUT_DIGITAL);
-
+    IM_SENSOR.Mode(Connector::INPUT_DIGITAL);
+    
     for (int16_t pin = CLEARCORE_PIN_CCIOA0; pin <= CLEARCORE_PIN_CCIOA7; pin++)
     {
         CcioMgr.PinByIndex(static_cast<ClearCorePins>(pin))->Mode(Connector::OUTPUT_DIGITAL);
@@ -290,13 +327,17 @@ int main()
 {
 
     system_init();
-    Manual_Overide("DD");
+    CcioMgr.PinByIndex(static_cast<ClearCorePins>(PROCESS_SELECTOR))->State(true);
+
 
     while (true)
     {
-        //stacking_step_01();
-        //stacking_stap_02();
-        //IML_interface();
-        //RuningEthernetThread();
+        stacking_step_01();
+        stacking_stap_02();
+        IML_interface();
+        RuningEthernetThread();
+        
+       // converyor_speed_adjust();
+        
     }
 }
