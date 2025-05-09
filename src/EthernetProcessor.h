@@ -123,11 +123,14 @@ void AnalizeEthernetData(String data) {
   if (data.equals("SO8_ON")) {
 
     Serial.println("turing on solonoid 08");
+    ERROR_EJECTOR.State(true);
+
     
   }
   if (data.equals("SO8_OFF")) {
 
     Serial.println("turing OFF solonoid 08");
+    ERROR_EJECTOR.State(false);
     
   }
 
@@ -155,6 +158,9 @@ void AnalizeEthernetData(String data) {
     TubLidExchnage(Tub_timer);
     Manual_Overide(PROCESS_SELECTOR , true);
     Manual_Overide(CONVERYOR_LIFTER , false);
+    Manual_Overide(CUP_PUSHER , true);
+    Manual_Overide(CUP_DROO , true);
+    
   }
   if (data.equals("LID")) {
 
@@ -162,6 +168,8 @@ void AnalizeEthernetData(String data) {
     TubLidExchnage(Lid_timer);
     Manual_Overide(PROCESS_SELECTOR , false);
     Manual_Overide(CONVERYOR_LIFTER , true);
+    Manual_Overide(CUP_PUSHER , true);
+    Manual_Overide(CUP_DROO , true);
 
   }
   if (data.equals("START")) {
