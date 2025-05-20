@@ -7,7 +7,7 @@
 
 #define MAX_CUP_COUNT 20
 #define EJECTION_OUT_ON_CONVERYOR 2
-#define EJECTION_CONVEYOR_MOVE_AMOUNT 10000
+#define EJECTION_CONVEYOR_MOVE_AMOUNT 50000
 
 #define CONVE_MAX_SPEED 20000
 #define CONVE_MIN_SPEED 0
@@ -36,6 +36,16 @@
 #define ERROR_EJECTOR ConnectorIO4
 
 #define VAUUM_EJECTOR ConnectorA9
+#define CAM_TIGGER_SENSOR ConnectorDI7
+#define CAM_TIGGER_OUTPUT CLEARCORE_PIN_CCIOC0
+
+
+
+#define UP_CAM ConnectorIO2
+#define DOWN_CAM ConnectorIO1
+#define LEFT_CAM ConnectorIO0
+#define RIGHT_CAM ConnectorIO3
+
 
 // A0 CUP UP SOLONOID 
 // A1 EJECTOR 
