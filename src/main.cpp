@@ -54,7 +54,7 @@ void UP_CAM_CALLBACK()
 {
     if (CAM_READ_ENABLE)
     {
-        if (!UP_CAM_FLAG && UP_CAM.State())
+        if (!UP_CAM_FLAG && UP_CAM.State() && DOWN_CAM.State() && LEFT_CAM.State() && RIGHT_CAM.State())
         {
             UP_CAM_FLAG = true;
         }

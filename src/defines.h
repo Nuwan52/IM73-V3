@@ -42,9 +42,9 @@
 
 
 #define UP_CAM ConnectorIO2
-#define DOWN_CAM ConnectorIO1
-#define LEFT_CAM ConnectorIO0
-#define RIGHT_CAM ConnectorIO3
+#define DOWN_CAM ConnectorIO0
+#define LEFT_CAM ConnectorIO3
+#define RIGHT_CAM ConnectorIO1
 
 
 // A0 CUP UP SOLONOID 
