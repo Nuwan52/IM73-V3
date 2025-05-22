@@ -368,7 +368,7 @@ void stacking_stap_02()
         if (Ejected_CUP_amount == EJECTION_OUT_ON_CONVERYOR)
         {
 
-            CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_PUSHER_TO_CONVEYOR_03))->State(true);
+           // CcioMgr.PinByIndex(static_cast<ClearCorePins>(CUP_PUSHER_TO_CONVEYOR_03))->State(true);
         }
 
         time.finish();
